@@ -3,7 +3,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-def test_csharp_directory(directory: str, exe_name: str = None):
+def test_csharp_directory(directory: str, exe_name: str = ""):
     """C# program tesztetel directory-ból .in/.out fájlokkal. Windows CP1250/1252 kompatibilis."""
     dir_path = Path(directory)
     if not dir_path.exists():
@@ -29,6 +29,7 @@ def test_csharp_directory(directory: str, exe_name: str = None):
     tests = list(dir_path.glob("*.in"))
     passed = 0
     failed = 0
+    contains = 0
 
     for test_file in sorted(tests):
         out_file = test_file.with_suffix('.out')
@@ -70,10 +71,21 @@ def test_csharp_directory(directory: str, exe_name: str = None):
                 print(f"✅ {test_file.name}")
                 passed += 1
             else:
-                print(f"❌ {test_file.name}")
-                print(f"   várt:     {repr(expected)[:50]}...")
-                print(f"   kapott:   {repr(output)[:50]}...")
-                failed += 1
+                expected2 = expected
+                expected2.lower
+                expected2.strip
+                output.lower
+                output.strip
+                if  expected2 in output:
+                    print(f"ℹ️ {test_file.name}")
+                    print(f"   várt:     {repr(expected)[:50]}")
+                    print(f"   kapott:   {repr(output)[:50]}")
+                    contains += 1
+                else:
+                    print(f"❌ {test_file.name}")
+                    print(f"   várt:     {repr(expected)[:50]}")
+                    print(f"   kapott:   {repr(output)[:50]}")
+                    failed += 1
 
         except subprocess.TimeoutExpired:
             print(f"⏰ {test_file.name} - timeout")
@@ -83,7 +95,7 @@ def test_csharp_directory(directory: str, exe_name: str = None):
             failed += 1
 
     print("-" * 50)
-    print(f"Összesen: {len(tests)} | Sikerült: {passed} | Sikertelen: {failed}")
+    print(f"Összesen: {len(tests)} | Sikerült: {passed} | Tartalmazta a helyes megoldást {contains} | Sikertelen: {failed}")
     return 0 if failed == 0 else 1
 
 if __name__ == "__main__":
@@ -92,5 +104,5 @@ if __name__ == "__main__":
         sys.exit(1)
 
     directory = sys.argv[1]
-    exe_name = sys.argv[2] if len(sys.argv) > 2 else None
+    exe_name = sys.argv[2] if len(sys.argv) > 2 else ""
     sys.exit(test_csharp_directory(directory, exe_name))

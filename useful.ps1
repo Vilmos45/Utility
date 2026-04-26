@@ -1,0 +1,1 @@
+# winget install <app_name> --location "D:\YourFolder"
